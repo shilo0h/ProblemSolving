@@ -1,10 +1,9 @@
 public class Node {
     int value;
-    Node left;
-    Node right;
+    Node next;
 
-    Node(int value){
+    public Node(int value){
         this.value=value;
-        left=right=null;
+        this.next=null;
     }
 }
