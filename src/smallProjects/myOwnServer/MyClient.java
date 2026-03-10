@@ -1,3 +1,5 @@
+package smallProjects.myOwnServer;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,8 +14,8 @@ public class MyClient {
             var reader=new BufferedReader(new InputStreamReader(socket.getInputStream()))){
             System.out.println("Socket created");
             for (String userInput;!(userInput=scanner.nextLine()).isEmpty();){
-                    writer.println(userInput);
-                    System.out.println(STR."Response: \{reader.readLine()}");
+                writer.println(userInput);
+                System.out.println(STR."Response: \{reader.readLine()}");
             }
         }catch (IOException e){
             throw new RuntimeException(e);
