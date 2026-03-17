@@ -1,4 +1,4 @@
-package smallProjects;
+package smallProjects.sodokuSolver;
 
 import java.util.stream.IntStream;
 
