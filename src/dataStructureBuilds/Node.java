@@ -1,3 +1,5 @@
+package dataStructureBuilds;
+
 public class Node {
     int value;
     Node next;
