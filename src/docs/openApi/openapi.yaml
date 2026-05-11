@@ -1,0 +1,1105 @@
+#openapi: 3.0.3
+#info:
+#  title: Chat Backend REST API
+#  description: |
+#    REST API for the Viatech chat-backend service.
+#  version: 1.0.0
+#servers:
+#  - url: http://localhost:8080
+#    description: Local development server
+#
+#tags:
+#  - name: Auth
+#    description: Authentication, registration and password management
+#  - name: User
+#    description: Current user profile and user management
+#  - name: Chatroom
+#    description: Chatroom lifecycle and membership
+#  - name: Chat
+#    description: Messages and reactions within a chatroom
+#  - name: Presence
+#    description: Online user presence
+#
+#security:
+#  - bearerAuth: []
+#
+#paths:
+#  # ---------------------------------------------------------------------------
+#  # AuthController  ->  /api/auth
+#  # ---------------------------------------------------------------------------
+#  /api/auth/login:
+#    post:
+#      tags: [ Auth ]
+#      summary: Authenticate a user and obtain a JWT
+#      security: [ ]
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/AuthenticationRequest'
+#      responses:
+#        '200':
+#          description: Successful authentication
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/AuthenticationResponse'
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+#
+#  /api/auth/register:
+#    post:
+#      tags: [ Auth ]
+#      summary: Register a new user (ADMIN only)
+#      description: Requires authority `SCOPE_ROLE_ADMIN`.
+#      security:
+#        - bearerAuth: [ ]
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/RegisterRequest'
+#      responses:
+#        '201':
+#          description: User registered
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/AuthenticationResponse' # TODO simplify (userId, name)
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#        '501': { $ref: '#/components/responses/NotImplemented' }
+#        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+#
+#  /api/auth/reset-password:
+#    post:
+#      tags: [ Auth ]
+#      summary: Request a password reset email
+#      security: [ ]
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/ResetPasswordEmailRequest'
+#      responses:
+#        '200':
+#          description: Reset email sent
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+#
+#  /api/auth/redeem-password:
+#    post:
+#      tags: [ Auth ]
+#      summary: Redeem a password reset token and set a new password
+#      security: [ ]
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/ResetPasswordRequest'
+#      responses:
+#        '200':
+#          description: Password reset successfully
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/AuthenticationResponse'
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+#
+#  /api/auth/refresh-token:
+#    post:
+#      tags: [ Auth ]
+#      summary: Exchange a refresh token for a new access token
+#      security: [ ]
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/RefreshTokenRequest'
+#      responses:
+#        '200':
+#          description: New token issued
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/AuthenticationResponse'
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+#
+#  # ---------------------------------------------------------------------------
+#  # UserController  ->  /api/user
+#  # ---------------------------------------------------------------------------
+#  /api/users/me:
+#    get:
+#      tags: [ User ]
+#      summary: Get the authenticated user's profile
+#      security:
+#        - bearerAuth: [ ]
+#      responses:
+#        '200':
+#          description: Profile data
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/UserDTO'
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#  /api/users:
+#    get:
+#      tags: [ User ]
+#      summary: Get all users (ADMIN only)
+#      security:
+#        - bearerAuth: [ ]
+#      responses:
+#        '200':
+#          description: List of users
+#          content:
+#            application/json:
+#              schema:
+#                type: array
+#                items:
+#                  $ref: '#/components/schemas/UserDTO'
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+#
+#  /api/users/{userId}:
+#    put:
+#      tags: [ User ]
+#      summary: Update a user's info
+#      description: |
+#        Requires authority `SCOPE_ROLE_ADMIN`, or the caller's JWT `userId`
+#        claim must match `{userId}`.
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - $ref: '#/components/parameters/UserIdPath'
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/UpdateUserRequest'
+#      responses:
+#        '200':
+#          description: Updated user and refreshed tokens
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/AuthenticationResponse'
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+#
+#    delete:
+#      tags: [ User ]
+#      summary: Delete a user
+#      description: |
+#        Requires authority `SCOPE_ROLE_ADMIN`, or the caller's JWT `userId`
+#        claim must match `{userId}`.
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - $ref: '#/components/parameters/UserIdPath'
+#      responses:
+#        '204':
+#          description: User deleted successfully (no content)
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+#
+#  # ---------------------------------------------------------------------------
+#  # ChatroomController  ->  /api/chatrooms
+#  # ---------------------------------------------------------------------------
+#  /api/chatrooms/{chatroomId}/members/{userId}:
+#    post:
+#      tags: [ Chatroom ]
+#      summary: Add a user to a chatroom
+#      description: Requires `SCOPE_ROLE_ADMIN` or the caller to be a moderator of the chatroom.
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - $ref: '#/components/parameters/ChatroomIdPath'
+#        - $ref: '#/components/parameters/UserIdPath'
+#      responses:
+#        '200':
+#          description: Member added
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ChatroomMemberDTO'
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#    delete:
+#      tags: [ Chatroom ]
+#      summary: Remove a user from a chatroom
+#      description: Requires `SCOPE_ROLE_ADMIN` or the caller to be a moderator of the chatroom.
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - $ref: '#/components/parameters/ChatroomIdPath'
+#        - $ref: '#/components/parameters/UserIdPath'
+#      responses:
+#        '204':
+#          description: Member removed successfully (no content)
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#  /api/chatrooms/{chatroomId}/members:
+#    get:
+#      tags: [ Chatroom ]
+#      summary: List members of a chatroom
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - $ref: '#/components/parameters/ChatroomIdPath'
+#      responses:
+#        '200':
+#          description: Chatroom members
+#          content:
+#            application/json:
+#              schema:
+#                type: array
+#                items:
+#                  $ref: '#/components/schemas/ChatroomMemberDTO'
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#  /api/chatrooms/directChat:
+#    post:
+#      tags: [ Chatroom ]
+#      summary: Create a direct (1-to-1) chatroom
+#      description: Creator is derived from JWT.
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - in: query
+#          name: userId
+#          required: true
+#          description: Id of the other participant
+#          schema:
+#            type: integer
+#            format: int64
+#      responses:
+#        '201':
+#          description: Direct chat created
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/CreateDirectChatResponse'
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#  /api/chatrooms/group:
+#    post:
+#      tags: [ Chatroom ]
+#      summary: Create a group chatroom
+#      description: Creator is derived from JWT.
+#      security:
+#        - bearerAuth: [ ]
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/CreateGroupChatResponse'
+#      responses:
+#        '201':
+#          description: Group chat created
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/CreateGroupChatResponse'
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#  /api/chatrooms:
+#    get:
+#      tags: [ Chatroom ]
+#      summary: Get all chatrooms for the authenticated user (paginated)
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - in: query
+#          name: page
+#          schema:
+#            type: integer
+#            default: 0
+#        - in: query
+#          name: pageSize
+#          schema:
+#            type: integer
+#            default: 10
+#      responses:
+#        '200':
+#          description: Paginated chatrooms
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  content:
+#                    type: array
+#                    items:
+#                      $ref: '#/components/schemas/GetChatroomResponse'
+#                  totalElements:
+#                    type: integer
+#                  totalPages:
+#                    type: integer
+#                  size:
+#                    type: integer
+#                  number:
+#                    type: integer
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#  # ---------------------------------------------------------------------------
+#  # ChatController  ->  /api/chatrooms/{chatroomId}/messages
+#  # ---------------------------------------------------------------------------
+#  /api/chatrooms/{chatroomId}/messages:
+#    post:
+#      tags: [ Chat ]
+#      summary: Send a message into a chatroom
+#      description: Caller must be a member of the chatroom.
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - $ref: '#/components/parameters/ChatroomIdPath'
+#        - in: query
+#          name: parentId
+#          required: false
+#          description: Optional parent message ID (for replies)
+#          schema:
+#            type: string
+#            maxLength: 64
+#            pattern: '^[A-Za-z0-9_-]+$'
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/MessageDTO'
+#      responses:
+#        '202':
+#          description: Message accepted and queued
+#          content:
+#            application/json:
+#              schema:
+#                type: string
+#                example: "msg_abc123"
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#    put:
+#      tags: [ Chat ]
+#      summary: Update an existing message
+#      description: Caller must be the sender of the message.
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - $ref: '#/components/parameters/ChatroomIdPath'
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/MessageDTO'
+#      responses:
+#        '204':
+#          description: Message updated successfully (no content)
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#  /api/chatrooms/{chatroomId}/messages/{messageId}/reactions:
+#    post:
+#      tags: [ Chat ]
+#      summary: Add a reaction to a message
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - $ref: '#/components/parameters/ChatroomIdPath'
+#        - $ref: '#/components/parameters/MessageIdPath'
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/ReactionDTO'
+#      responses:
+#        '202':
+#          description: Reaction accepted
+#          content:
+#            application/json:
+#              schema:
+#                type: string
+#                example: "react_xyz789"
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#  /api/chatrooms/{chatroomId}/messages/{messageId}/reactions/{reactionId}:
+#    put:
+#      tags: [ Chat ]
+#      summary: Update a reaction
+#      description: Caller must be the owner of the reaction.
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - $ref: '#/components/parameters/ChatroomIdPath'
+#        - $ref: '#/components/parameters/MessageIdPath'
+#        - $ref: '#/components/parameters/ReactionIdPath'
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/ReactionDTO'
+#      responses:
+#        '204':
+#          description: Reaction updated successfully (no content)
+#        '400': { $ref: '#/components/responses/ValidationError' }
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#    delete:
+#      tags: [ Chat ]
+#      summary: Delete a reaction
+#      security:
+#        - bearerAuth: [ ]
+#      parameters:
+#        - $ref: '#/components/parameters/ChatroomIdPath'
+#        - $ref: '#/components/parameters/MessageIdPath'
+#        - $ref: '#/components/parameters/ReactionIdPath'
+#      responses:
+#        '204':
+#          description: Reaction deleted successfully (no content)
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '403': { $ref: '#/components/responses/Forbidden' }
+#        '404': { $ref: '#/components/responses/NotFound' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#  # ---------------------------------------------------------------------------
+#  # UserPresence  ->  /api/users/online
+#  # ---------------------------------------------------------------------------
+#
+#  /api/users/online:
+#    get:
+#      tags: [ Presence ]
+#      summary: Get IDs of currently online users
+#      security:
+#        - bearerAuth: [ ]
+#      responses:
+#        '200':
+#          description: Set of online user IDs
+#          content:
+#            application/json:
+#              schema:
+#                type: array
+#                items:
+#                  type: integer
+#                  format: int64
+#        '401': { $ref: '#/components/responses/Unauthorized' }
+#        '500': { $ref: '#/components/responses/InternalServerError' }
+#
+#
+#components:
+#  securitySchemes:
+#    bearerAuth:
+#      type: http
+#      scheme: bearer
+#      bearerFormat: JWT
+#      description: |
+#        JWT bearer token. The token carries custom claims used by the backend,
+#        notably `userId` (Long) and `nickname` (String), plus standard scopes
+#        such as `SCOPE_ROLE_ADMIN`.
+#
+#  parameters:
+#    UserIdPath:
+#      in: path
+#      name: userId
+#      required: true
+#      description: Numeric user identifier
+#      schema:
+#        type: integer
+#        format: int64
+#        minimum: 1
+#        example: 42
+#    ChatroomIdPath:
+#      in: path
+#      name: chatroomId
+#      required: true
+#      description: Numeric chatroom identifier
+#      schema:
+#        type: integer
+#        format: int64
+#        minimum: 1
+#        example: 7
+#    MessageIdPath:
+#      in: path
+#      name: messageId
+#      required: true
+#      description: Message identifier (ULID/UUID-like string)
+#      schema:
+#        type: string
+#        minLength: 1
+#        maxLength: 64
+#        pattern: '^[A-Za-z0-9_-]+$'
+#    ReactionIdPath:
+#      in: path
+#      name: reactionId
+#      required: true
+#      description: Reaction identifier (ULID/UUID-like string)
+#      schema:
+#        type: string
+#        minLength: 1
+#        maxLength: 64
+#        pattern: '^[A-Za-z0-9_-]+$'
+#
+#  responses:
+#    Unauthorized:
+#      description: Missing or invalid authentication
+#      content:
+#        application/json:
+#          schema: { $ref: '#/components/schemas/ErrorResponse' }
+#
+#    Forbidden:
+#      description: Authenticated but not allowed to perform this action
+#      content:
+#        application/json:
+#          schema: { $ref: '#/components/schemas/ErrorResponse' }
+#
+#    NotFound:
+#      description: Resource not found
+#      content:
+#        application/json:
+#          schema: { $ref: '#/components/schemas/ErrorResponse' }
+#
+#    ValidationError:
+#      description: Request body or parameters failed validation
+#      content:
+#        application/json:
+#          schema: { $ref: '#/components/schemas/ValidationErrorResponse' }
+#
+#    InternalServerError:
+#      description: Unexpected server error
+#      content:
+#        application/json:
+#          schema: { $ref: '#/components/schemas/ErrorResponse' }
+#
+#    NotImplemented:
+#      description: Endpoint not implemented or not supported
+#      content:
+#        application/json:
+#          schema: { $ref: '#/components/schemas/ErrorResponse' }
+#
+#    ServiceUnavailable:
+#      description: Service temporarily unavailable (e.g. downstream service, Kafka, DB)
+#      content:
+#        application/json:
+#          schema: { $ref: '#/components/schemas/ErrorResponse' }
+#
+#  schemas:
+#    # ------------------------- Enums -------------------------
+#    ChatroomType:
+#      type: string
+#      enum: [DIRECT, GROUP]
+#    ChatroomRole:
+#      type: string
+#      enum: [MODERATOR, USER]
+#    UserRole:
+#      type: string
+#      enum: [USER, ADMIN]
+#    ReactionEnum:
+#      type: string
+#      enum: [LIKE, DISLIKE]
+#
+#    # ------------------------- Auth DTOs -------------------------
+#    AuthenticationRequest:
+#      type: object
+#      additionalProperties: false
+#      required: [email, password]
+#      properties:
+#        email:
+#          type: string
+#          format: email
+#          minLength: 3
+#          maxLength: 254
+#          example: alice@example.com
+#        password:
+#          type: string
+#          format: password
+#          minLength: 8
+#          maxLength: 128
+#          writeOnly: true
+#
+#    AuthenticationResponse:
+#      type: object
+#      required: [id, nickname, token, refreshToken, role]
+#      properties:
+#        id:
+#          type: integer
+#          format: int64
+#          minimum: 1
+#        nickname:
+#          type: string
+#          minLength: 1
+#          maxLength: 64
+#        token:
+#          type: string
+#          description: JWT access token (compact serialization)
+#          pattern: '^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$'
+#        refreshToken:
+#          type: string
+#          minLength: 20
+#          maxLength: 4096
+#        role:
+#          type: array
+#          description: Authorities / scopes granted to the user (e.g. `SCOPE_ROLE_ADMIN`)
+#          items:
+#            type: string
+#            pattern: '^[A-Z][A-Z0-9_]+$'
+#            minLength: 1
+#            maxLength: 64
+#          minItems: 0
+#          uniqueItems: true
+#
+#    RegisterRequest:
+#      type: object
+#      additionalProperties: false
+#      required: [nickname, email, name, lastName, password]
+#      properties:
+#        nickname:
+#          type: string
+#          minLength: 3
+#          maxLength: 30
+#          pattern: '^[A-Za-z0-9_.-]+$'
+#          example: alice_42
+#        email:
+#          type: string
+#          format: email
+#          minLength: 3
+#          maxLength: 254
+#        name:
+#          type: string
+#          minLength: 1
+#          maxLength: 60
+#          pattern: "^[\\p{L} '\\-]+$"
+#        lastName:
+#          type: string
+#          minLength: 1
+#          maxLength: 60
+#          pattern: "^[\\p{L} '\\-]+$"
+#        password:
+#          type: string
+#          format: password
+#          minLength: 8
+#          maxLength: 128
+#          description: |
+#            Must be 8-128 characters long. Clients SHOULD enforce at least
+#            one letter and one digit; the server enforces `@NotBlank`.
+#          writeOnly: true
+#        role:
+#          type: string
+#          enum: [ADMIN, USER]
+#          nullable: true
+#        birthdate:
+#          type: string
+#          description: "Date in dd/MM/yyyy format"
+#          pattern: '^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$'
+#          example: "31/12/1990"
+#          nullable: true
+#        location:
+#          type: string
+#          maxLength: 120
+#          nullable: true
+#
+#    ResetPasswordEmailRequest:
+#      type: object
+#      additionalProperties: false
+#      required: [email]
+#      properties:
+#        email:
+#          type: string
+#          format: email
+#          minLength: 3
+#          maxLength: 254
+#
+#    ResetPasswordRequest:
+#      type: object
+#      additionalProperties: false
+#      required: [email, token, password]
+#      properties:
+#        email:
+#          type: string
+#          format: email
+#          minLength: 3
+#          maxLength: 254
+#        token:
+#          type: string
+#          minLength: 16
+#          maxLength: 512
+#          pattern: '^[A-Za-z0-9_.-]+$'
+#        password:
+#          type: string
+#          format: password
+#          minLength: 8
+#          maxLength: 128
+#          writeOnly: true
+#
+#    RefreshTokenRequest:
+#      type: object
+#      additionalProperties: false
+#      required: [refreshToken]
+#      properties:
+#        refreshToken:
+#          type: string
+#          minLength: 20
+#          maxLength: 4096
+#
+#    # ------------------------- User DTOs -------------------------
+#    UserDTO:
+#      type: object
+#      properties:
+#        id:
+#          type: integer
+#          format: int64
+#          minimum: 1
+#          readOnly: true
+#        nickname:
+#          type: string
+#          minLength: 3
+#          maxLength: 30
+#          pattern: '^[A-Za-z0-9_.-]+$'
+#        name:
+#          type: string
+#          minLength: 1
+#          maxLength: 60
+#        lastName:
+#          type: string
+#          minLength: 1
+#          maxLength: 60
+#        email:
+#          type: string
+#          format: email
+#          minLength: 3
+#          maxLength: 254
+#        birthDate:
+#          type: string
+#          format: date
+#          nullable: true
+#        location:
+#          type: string
+#          maxLength: 120
+#          nullable: true
+#
+#    UpdateUserRequest:
+#      type: object
+#      additionalProperties: false
+#      minProperties: 1
+#      properties:
+#        nickname:
+#          type: string
+#          minLength: 3
+#          maxLength: 30
+#          pattern: '^[A-Za-z0-9_.-]+$'
+#        profileStatus:
+#          type: string
+#          minLength: 1
+#          maxLength: 140
+#        jobTitle:
+#          type: string
+#          maxLength: 100
+#        name:
+#          type: string
+#          minLength: 1
+#          maxLength: 60
+#        lastName:
+#          type: string
+#          minLength: 1
+#          maxLength: 60
+#
+#
+#    # ------------------------- Chatroom DTOs -------------------------
+#
+#    GetChatroomResponse:
+#      type: object
+#      properties:
+#        id:
+#          type: integer
+#          format: int64
+#          minimum: 1
+#          readOnly: true
+#        name:
+#          type: string
+#          minLength: 3
+#          maxLength: 50
+#        createdOn:
+#          type: string
+#          format: date-time
+#          readOnly: true
+#        startTime:
+#          type: string
+#          format: date-time
+#          nullable: true
+#        endTime:
+#          type: string
+#          format: date-time
+#          nullable: true
+#        type:
+#          $ref: '#/components/schemas/ChatroomType'
+#
+#    ChatroomMemberDTO:
+#      type: object
+#      required: [role, chatroomId, userId]
+#      properties:
+#        role:
+#          $ref: '#/components/schemas/ChatroomRole'
+#        chatroomId:
+#          type: integer
+#          format: int64
+#          minimum: 1
+#        userId:
+#          type: integer
+#          format: int64
+#          minimum: 1
+#
+#    CreateDirectChatResponse:
+#      type: object
+#      properties:
+#        id:
+#          type: integer
+#          format: int64
+#          minimum: 1
+#          readOnly: true
+#
+#        groupName:
+#          type: string
+#          minLength: 3
+#          maxLength: 50
+#
+#        participantId:
+#          type: integer
+#          format: int64
+#          minimum: 1
+#
+#        startTime:
+#          type: string
+#          format: date-time
+#          nullable: true
+#          readOnly: true
+#
+#        endTime:
+#          type: string
+#          format: date-time
+#          nullable: true
+#          readOnly: true
+#
+#        type:
+#          $ref: '#/components/schemas/ChatroomType'
+#
+#    CreateGroupChatResponse:
+#      type: object
+#      properties:
+#        id:
+#          type: integer
+#          format: int64
+#          minimum: 1
+#          readOnly: true
+#
+#        groupName:
+#          type: string
+#          minLength: 3
+#          maxLength: 50
+#
+#        userIds:
+#          type: array
+#          items:
+#            type: integer
+#            format: int64
+#            minimum: 1
+#
+#        startTime:
+#          type: string
+#          format: date-time
+#          nullable: true
+#          readOnly: true
+#
+#        endTime:
+#          type: string
+#          format: date-time
+#          nullable: true
+#          readOnly: true
+#
+#        type:
+#          $ref: '#/components/schemas/ChatroomType'
+#
+#    # ------------------------- Message DTOs -------------------------
+#    BaseMessage:
+#      type: object
+#      properties:
+#        id:
+#          type: string
+#          minLength: 1
+#          maxLength: 64
+#          pattern: '^[A-Za-z0-9_-]+$'
+#          readOnly: true
+#        userId:
+#          type: integer
+#          format: int64
+#          minimum: 1
+#        chatroomId:
+#          type: integer
+#          format: int64
+#          minimum: 1
+#        nickname:
+#          type: string
+#          minLength: 1
+#          maxLength: 64
+#        createdOn:
+#          type: string
+#          format: date-time
+#          readOnly: true
+#        updatedOn:
+#          type: string
+#          format: date-time
+#          readOnly: true
+#          nullable: true
+#
+#    MessageDTO:
+#      allOf:
+#        - $ref: '#/components/schemas/BaseMessage'
+#        - type: object
+#          required: [content]
+#          properties:
+#            parentId:
+#              type: string
+#              description: Id of the main message being replied to (omit for top-level messages)
+#              minLength: 1
+#              maxLength: 64
+#              pattern: '^[A-Za-z0-9_-]+$'
+#              nullable: true
+#            content:
+#              type: string
+#              minLength: 1
+#              maxLength: 4000
+#
+#    MessageWithReactionDTO:
+#      allOf:
+#        - $ref: '#/components/schemas/MessageDTO'
+#        - type: object
+#          properties:
+#            reactions:
+#              type: array
+#              items:
+#                $ref: '#/components/schemas/ReactionDTO'
+#
+#    MessageWithReplayReactionDTO:
+#      allOf:
+#        - $ref: '#/components/schemas/MessageWithReactionDTO'
+#        - type: object
+#          properties:
+#            replies:
+#              type: array
+#              items:
+#                $ref: '#/components/schemas/MessageWithReactionDTO'
+#
+#    ReactionDTO:
+#      allOf:
+#        - $ref: '#/components/schemas/BaseMessage'
+#        - type: object
+#          required: [messageId, reaction]
+#          properties:
+#            messageId:
+#              type: string
+#              minLength: 1
+#              maxLength: 64
+#              pattern: '^[A-Za-z0-9_-]+$'
+#            reaction:
+#              $ref: '#/components/schemas/ReactionEnum'
+#
+#    # ------------------------- Error DTOs -------------------------
+#    ErrorResponse:
+#      type: object
+#      description: RFC 7807 Problem Details style error payload.
+#      required: [status, error, message]
+#      properties:
+#        timestamp:
+#          type: string
+#          format: date-time
+#          example: "2026-04-22T19:20:00Z"
+#        status:
+#          type: integer
+#          minimum: 400
+#          maximum: 599
+#          example: 401
+#        error:
+#          type: string
+#          example: Unauthorized
+#        message:
+#          type: string
+#          example: Missing or invalid authentication token
+#        path:
+#          type: string
+#          example: /api/user/me
+#
+#    ValidationErrorResponse:
+#      allOf:
+#        - $ref: '#/components/schemas/ErrorResponse'
+#        - type: object
+#          properties:
+#            violations:
+#              type: array
+#              items:
+#                type: object
+#                required: [field, message]
+#                properties:
+#                  field:
+#                    type: string
+#                    example: email
+#                  message:
+#                    type: string
+#                    example: Email is not valid
+#              minItems: 1
