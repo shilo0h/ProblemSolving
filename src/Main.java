@@ -1,17 +1,29 @@
-import smallProjects.calculator.Calculator;
-import streams.FunctionalProgramming;
-
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.HashSet;
+import java.util.Set;
+
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
+        char[][] board = {
+                {'1', '2', '.',     '.', '3', '.',    '.', '.', '.'},
+                {'4', '.', '.',     '5', '.', '.',    '.', '.', '.'},
+                {'.', '9', '8',     '.', '.', '.',    '.', '.', '3'},
 
+                {'5', '.', '.',     '.', '6', '.',    '.', '.', '4'},
+                {'.', '.', '.',     '8', '.', '3',    '.', '.', '5'},
+                {'7', '.', '.',     '.', '2', '.',    '.', '.', '6'},
+
+                {'.', '.', '.',     '.', '.', '.',    '2', '.', '.'},
+                {'.', '.', '.',     '4', '1', '9',    '.', '.', '8'},
+                {'.', '.', '.',     '.', '8', '.',    '.', '7', '9'}
+            };
+
+        System.out.println(isValidSudoku(board));
+    }
+
+
+    private static boolean isValidSudoku(char[][] board) {
+        return true;
     }
 }

@@ -413,3 +413,12 @@ Do you need both?
 ---
 
 *Targets Spring Boot 3.3.x · Java 21 · springdoc-openapi 2.5.0 · openapi-generator 7.6.0*
+
+
+*The flow is like this First added Swagger to watch on webBrowser added library and plugin*
+*Also added speciication on application.yaml file*
+*Added configuration for OpenApi*
+*Added library and plugin for generting code of controllers and endpoints*
+*openapi.yaml file was also created but if not created you need to create it*
+*generate the files in the target folder*
+*Delete the previous files which were in use and refactor the services that use the controllers mostly the openapi file*
