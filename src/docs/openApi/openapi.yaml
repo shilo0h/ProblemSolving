@@ -298,6 +298,7 @@
 #
 #  /api/chatrooms/directChat:
 #    post:
+#     operationId:nameOfTheFunction     //TODO  needs to be added to all the different apis
 #      tags: [ Chatroom ]
 #      summary: Create a direct (1-to-1) chatroom
 #      description: Creator is derived from JWT.
