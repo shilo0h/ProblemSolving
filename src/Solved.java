@@ -255,4 +255,24 @@ public class Solved {
             }
         }
     }
+
+    //=============================================SlidingWindow======================================================================================//
+
+    private static int slidingWindow(int[] arr, int k) {
+        int sum = 0;
+
+        for (int i = 0; i < k; i++) {
+            sum = sum + arr[i];
+        }
+        int maxSum = sum;
+
+        for (int i = k; i < arr.length; i++) {
+            sum = sum - arr[i - k] + arr[i];
+
+            if (maxSum < sum) {
+                maxSum = sum;
+            }
+        }
+        return maxSum;
+    }
 }
