@@ -5,23 +5,16 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-            int []nums={1,2,3,4,5,6,7,8,9};
-             int window=3;
+        int[] array = {1, 1, 2, 3, 3, 3, 4, 4, 5, 6, 6, 6, 7, 8, 9};
 
-             int sum=0;
-
-             for (int i=0;i<window;i++){
-                 sum+=nums[i];
-             }
-
-             int maxSum=sum;
-             for(int i=window;i< nums.length;i++){
-                 maxSum=maxSum-nums[i-window]+nums[i];
-
-                 if (maxSum>sum){
-                     sum=maxSum;
-                 }
-             }
-             System.out.println(sum);
+        HashMap<Integer, Integer> map = new HashMap<>();
+            for (int num : array) {
+                if (!map.containsKey(num)) {
+                    map.put(num, 1);
+                }else{
+                    map.put(num, map.get(num) + 1);
+                }
+            }
+        System.out.println(map);
     }
 }
