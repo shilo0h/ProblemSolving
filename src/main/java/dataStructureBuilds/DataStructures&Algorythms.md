@@ -9,4 +9,19 @@ Selection Sort you find the smallest every iteration and replace the element fro
 Insertion Sort compares elements with previous elements in array and if bigger we move them to the right and at the end where there is no bigger numbers
 we place the value that we were comparing
 
+Linkedin List - Doubly Linked List
+
+Recursion
+
+MergeSort
+
+Shell Sort
+
+Quick Sort 
+
+Big O notation
+
+Two Pointers
+
+Sliding Window
 

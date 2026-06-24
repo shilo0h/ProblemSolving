@@ -1,48 +1,23 @@
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class Main {
 
     static void main() {
-        int nums[]={2,34,434,6546,546,546,45,4532,3,32};
+        int [][]ml=new int[4][];
+        ml[0]=new int[6];
+        ml[1]=new int[4];
+        ml[2]=new int[4];
+        ml[3]=new int[5];
+        ml[4]=new int[5];
 
-        mergeSort(nums);
-        for (int num : nums) {
-            System.out.println(num);
-        }
-    }
-
-
-    private static void mergeSort(int[]nums){
-        int len=nums.length;
-        if(len<2) return;
-        int mid=len/2;
-        int[] left=new int[mid];
-        int[] right=new int[len-mid];
-        for(int i=0;i<mid;i++){
-            left[i]=nums[i];
-        }
-        for(int i=mid;i<len;i++){
-            right[i-mid]=nums[i];
-        }
-        mergeSort(left);
-        mergeSort(right);
-        merge(nums,left,right);
-    }
-    private static void merge(int[] nums,int[] left,int[] right){
-        int i=0,j=0,k=0;
-        while(i<left.length&&j<right.length){
-            if(left[i]<=right[j]){
-                nums[k++]=left[i++];
+        for(int i=0;i<ml.length;i++){
+            for(int j=0;j<ml[i].length;j++){
+                System.out.print(ml[i][j]+" ");
             }
-            else{
-                nums[k++]=right[j++];
-            }
+            System.out.println();
         }
-        while(i<left.length){
-            nums[k++]=left[i++];
-        }
-        while(j<right.length){
-            nums[k++]=right[j++];
-        }
+
+        Math.min()
     }
 }
