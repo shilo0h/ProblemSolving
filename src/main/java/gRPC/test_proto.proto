@@ -1,0 +1,33 @@
+syntax = "proto3";  //this is the syntax which proto files use
+
+option java_multiple_files = true;   //this allows multiple files to be created without this BillingProto.java with this BillingRequest.java
+//    BillingResponse.java
+//    BillingServiceGrpc.java
+option java_package = "billing";   //this say to be build under billing package
+
+service BillingService {
+  rpc CreateBillingAccount (BillingRequest) returns (BillingResponse);
+  //this are the methods we can define where BillingRequest is what we expect BillingResponse what we return
+
+  rpc TestingSomething (Name) returns (LastName);
+}
+
+message BillingRequest { //this is where we define the parameters the object will have
+  string patientId=1;
+  string name=2;
+  string email=3;
+}
+
+message BillingResponse{
+  string accountId=1;
+  string status=2;
+
+}
+
+message Name{
+  string name=1;
+}
+
+message LastName{
+  string lastName=1;
+}

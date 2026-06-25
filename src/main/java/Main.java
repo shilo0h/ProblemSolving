@@ -17,7 +17,5 @@ public class Main {
             }
             System.out.println();
         }
-
-        Math.min()
     }
 }
