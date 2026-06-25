@@ -13,6 +13,13 @@ We also need to define where our gRPC server is going to run
 
 And this is how to test and send the request to gRPC server
 
+to return response gRPC uses StreamObserver<T> is the object gRPC gives you to send data back to whoever called your service.
+Think:return response;
+
+So instead of:BillingResponse create(...)
+you do:  responseObserver.onNext(response);  sending data
+responseObserver.onCompleted();   finished sending data
+
 GRPC localhost:9001/BillingService/CreateBillingAccount
 
 {
