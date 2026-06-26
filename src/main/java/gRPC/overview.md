@@ -27,3 +27,7 @@ GRPC localhost:9001/BillingService/CreateBillingAccount
 "name" : "John Doe",
 "email" : "john.doe@example.com"
 }
+
+
+To communicate with different microservices via gRPC we need to create a gRPC client on the service we want to call it from 
+and then we call it in the function
