@@ -25,4 +25,4 @@ Two Pointers
 
 Sliding Window
 
-Stack
+Stack is made of array top index and size of the array it logic is last in first out

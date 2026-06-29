@@ -3,17 +3,18 @@ import java.util.Scanner;
 
 public class Main {
 
-    static void main() {
-        int [][]ml=new int[4][];
-        ml[0]=new int[6];
-        ml[1]=new int[4];
-        ml[2]=new int[4];
-        ml[3]=new int[5];
-        ml[4]=new int[5];
+    public static void main(String[] args) {
+        int [][] matrix = new int [10][10];
 
-        for(int i=0;i<ml.length;i++){
-            for(int j=0;j<ml[i].length;j++){
-                System.out.print(ml[i][j]+" ");
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                matrix[i][j] = (int)(Math.random() * 10);
+            }
+        }
+
+        for (int i = 0; i < matrix.length; i++) {
+            for(int j = 0; j < matrix[i].length; j++) {
+                System.out.print(matrix[i][j] + " ");
             }
             System.out.println();
         }

@@ -1,33 +1,53 @@
 package dataStructureBuilds;
 
 public class MyStack {
+    private int []stack;
+    private int top = -1;
+    private int size;
 
-    private int[] arr;
-
-    // maximum size of stack
-    private int capacity;
-
-    // index of top element
-    private int top;
-
-    // constructor
-    public MyStack(int cap) {
-        capacity = cap;
-        arr = new int[capacity];
-        top = -1;
+    public MyStack(int size){
+        this.size = size;
+        stack = new int[size];
+        top=-1;
     }
 
-    void push(int x) {
-        if (top == capacity - 1) {
-            System.out.println("Stack Overflow");
-            return;
+
+    public boolean isEmpty(){
+        if(top==-1){
+            return true;
         }
-        arr[++top] = x;
+        return false;
     }
 
-    void print(){
-            for (int i=0;i<arr.length;i++){
-                System.out.println(arr[i]);
-            }
+    public boolean isFull(){
+        if(top==size-1){
+            return true;
         }
+        return false;
+    }
+
+    public int peek(){
+        if(top==-1){
+            return -1;
+        }
+        return stack[top];
+    }
+
+    public void push(int x){
+        if (isFull()){
+            System.out.println("You stack is Full");
+        }else{
+            top++;
+            stack[top] = x;
+        }
+    }
+
+    public int pop(){
+        if(isEmpty()){
+            System.out.println("You stack is Empty");
+        }
+        int x=stack[top];
+        top--;
+        return x;
+    }
 }
