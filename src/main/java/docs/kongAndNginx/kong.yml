@@ -1,0 +1,12 @@
+_format_version: "3.0"
+
+services:
+  - name: spring-boot
+    url: http://host.docker.internal:8080
+
+    routes:
+      - name: hello-route
+        paths:
+          - /
+
+
