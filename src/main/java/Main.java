@@ -1,17 +1,12 @@
 import jdk.dynalink.linker.LinkerServices;
 
 import java.sql.SQLOutput;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class Main {
 
-    public static void main(String[] args) throws InterruptedException {
-        Scanner scanner = new Scanner(System.in);
-
+    public static void main(String[] args) throws InterruptedException{
 
     }
 }
