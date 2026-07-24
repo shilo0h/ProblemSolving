@@ -74,3 +74,9 @@ Tools / APIs / Databases
 
 The MCP server exposes tools, prompts, and resources that AI clients can
 discover and invoke.
+
+
+## Chat Memory
+
+Allows so the llm keeps memory of the conversation that i am making 
+By default is 20 messages.
