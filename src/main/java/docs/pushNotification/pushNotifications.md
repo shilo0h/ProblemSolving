@@ -16,5 +16,9 @@ in the device they are registered
 Also need to create an endPoint to delete the token from the db since maybe one user logs out of the account but he still receives the notifications
 With this all notification is finished and ready
 
+If you want to make it much better then it is you can separate the logic of the notification by itself so it dont effect the other service
+My way that i have done it is by creating a kafka topic and sent the event there and then from the the listener which is separate also 
+can listen the event and send the notification via the firebase server
+
 then we create the function to send notification to the token we want it to send it to 
 and put wherever we want
