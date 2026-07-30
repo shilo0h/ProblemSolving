@@ -22,3 +22,26 @@ can listen the event and send the notification via the firebase server
 
 then we create the function to send notification to the token we want it to send it to 
 and put wherever we want
+
+
+here the dependecy
+
+ <dependency>
+   <groupId>com.google.firebase</groupId>
+   <artifactId>firebase-admin</artifactId>
+   <version>9.4.3</version>
+</dependency>
+
+
+here is the implementation
+
+Notification notification = Notification.builder()
+.setTitle(title)
+.setBody(body)
+.build();
+Message message = Message.builder()
+.setToken(userDeviceToken.getToken())
+.setNotification(notification)
+.build();
+
+FirebaseMessaging.getInstance().send(message);
