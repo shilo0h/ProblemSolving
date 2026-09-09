@@ -32,3 +32,12 @@ hardware devices under /dev
 system information under /proc
 boot files under /boot
 external storage under /media
+
+
+This is how the linux kernel works:
+terminal shows what you typed 
+shell interprets it searches path for program
+linux checks for user premissions
+kernel creates a procces and gives the resources it needs 
+program may read files pass output use the network run as a service or run in a container 
+if something fails best way to check is /logs 
